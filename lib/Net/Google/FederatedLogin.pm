@@ -7,10 +7,24 @@ use LWP::UserAgent;
 
 my $DEFAULT_DISCOVERY_URL = 'https://www.google.com/accounts/o8/id';
 
+=attr username
+
+B<Required:> The email address of the identity to be checked.
+
+=cut
+
 has username => (
     is  => 'rw',
     isa => 'Str',
 );
+
+=attr ua
+
+The useragent internally used for communications that the
+module needs to do. If not provided, a new L<LWP::UserAgent>
+will be instantiated.
+
+=cut
 
 has ua => (
     is  => 'rw',
