@@ -70,7 +70,7 @@ sub _get_request_parameters {
         . '&openid.ns=http://specs.openid.net/auth/2.0'
         . '&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select'
         . '&openid.identity=http://specs.openid.net/auth/2.0/identifier_select'
-        . '&openid.return_to' . $self->return_to;
+        . '&openid.return_to=' . $self->return_to;
     
     return $params;
 }
