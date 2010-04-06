@@ -88,12 +88,9 @@ sub get_auth_url {
 
 sub _perform_discovery {
     my $self = shift;
-    my $claimed_id = $self->claimed_id;
-    croak 'Claimed id not set (needs to be an email or OpenID url), unable to perform discovery' unless $claimed_id;
     
-    #TODO: Check whether it is a Google Apps account
     my $ua = $self->ua;
-    my $response = $ua->get($DEFAULT_DISCOVERY_URL,
+    my $response = $ua->get($self->_get_discovery_url,
         Accept => 'application/xrds+xml');
     
     require XML::Twig;
@@ -101,6 +98,16 @@ sub _perform_discovery {
         twig_handlers => { URI => sub {$self->_open_id_endpoint($_->text)}},
     );
     $xt->parse($response->decoded_content);
+}
+
+sub _get_discovery_url {
+    my $self = shift;
+    
+    my $claimed_id = $self->claimed_id;
+    croak 'Claimed id not set (needs to be an email or OpenID url), unable to perform discovery' unless $claimed_id;
+    
+    #TODO: Check whether it is a Google Apps account
+    return $DEFAULT_DISCOVERY_URL;
 }
 
 sub _get_request_parameters {
