@@ -4,10 +4,12 @@ package Net::Google::FederatedLogin;
 use Moose;
 
 use LWP::UserAgent;
+use Carp;
+use URI::Escape;
 
 my $DEFAULT_DISCOVERY_URL = 'https://www.google.com/accounts/o8/id';
 
-has username    => (
+has claimed_id    => (
     is  => 'rw',
     isa => 'Str',
 );
@@ -25,6 +27,11 @@ has return_to   => (
     isa => 'Str',
 );
 
+has cgi => (
+    is  => 'rw',
+    isa => 'CGI',
+);
+
 has _open_id_endpoint   => (
     is  => 'rw',
     isa => 'Str',
@@ -37,7 +44,7 @@ sub get_auth_url {
     unless($endpoint) {
         $self->_perform_discovery;
         $endpoint = $self->_open_id_endpoint;
-        die 'No OpenID endpoint found.' unless $endpoint;
+        croak 'No OpenID endpoint found.' unless $endpoint;
     }
     
     $endpoint .=  $self->_get_request_parameters;
@@ -47,8 +54,8 @@ sub get_auth_url {
 
 sub _perform_discovery {
     my $self = shift;
-    my $username = $self->username;
-    die 'Username not set, unable to perform discovery' unless $username;
+    my $claimed_id = $self->claimed_id;
+    croak 'Claimed id not set (needs to be an email or OpenID url), unable to perform discovery' unless $claimed_id;
     
     #TODO: Check whether it is a Google Apps account
     my $ua = $self->ua;
@@ -65,7 +72,7 @@ sub _perform_discovery {
 sub _get_request_parameters {
     my $self = shift;
     
-    die 'No return_to address provided' unless $self->return_to;
+    croak 'No return_to address provided' unless $self->return_to;
     my $params = '?openid.mode=checkid_setup'
         . '&openid.ns=http://specs.openid.net/auth/2.0'
         . '&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select'
@@ -73,6 +80,59 @@ sub _get_request_parameters {
         . '&openid.return_to=' . $self->return_to;
     
     return $params;
+}
+
+sub verify_auth {
+    my $self = shift;
+    
+    my $cgi = $self->cgi;
+    croak 'No CGI provided (needed to verify OpenID parameters)' unless $cgi;
+    
+    return if $cgi->param('openid.mode') eq 'cancel';
+    
+    my $return_to = $self->return_to;
+    my $param_return_to = $cgi->param('openid.return_to');
+    croak 'Return_to value must be set for validation purposes' unless $return_to;
+    croak sprintf q{Return_to parameter (%s) doesn't match provided value(%s)}, $param_return_to, $return_to unless $param_return_to eq $return_to;
+    
+    my $claimed_id = $self->claimed_id;
+    my $param_claimed_id = $cgi->param('openid.claimed_id');
+    if(!$claimed_id) {
+        $self->claimed_id($param_claimed_id);
+    } elsif ($claimed_id ne $param_claimed_id) {
+        carp "Identity from parameters ($param_claimed_id) is not the same as the previously set claimed identity ($claimed_id); using the parameter version.";
+        $self->claimed_id($param_claimed_id);
+    }
+    $self->_open_id_endpoint('');
+    $self->_perform_discovery;
+    
+    my $verify_endpoint = $self->_open_id_endpoint;
+    croak 'Unable to verify auth, failed to determine endpoint' unless $verify_endpoint;
+    $verify_endpoint .= '?' . join '&',
+        map {
+            my $param = $_;
+            my $val = $cgi->param($param);
+            $val = 'check_authentication' if $param eq 'openid.mode';
+            sprintf '%s=%s', uri_escape($param), uri_escape($val);
+        } $cgi->param;
+    
+    my $ua = $self->ua;
+    my $response = $ua->get($verify_endpoint,
+        Accept => 'text/plain');
+    my $response_data = _parse_direct_response($response);
+    croak "Unexpected verification response namespace: $response_data->{ns}" unless $response_data->{ns} eq 'http://specs.openid.net/auth/2.0';
+    
+    return unless $response_data->{is_valid} eq 'true';
+    return $param_claimed_id;
+}
+
+sub _parse_direct_response {
+    my $response = shift;
+    
+    my $response_content = $response->decoded_content;
+    my @lines = split /\n/, $response_content;
+    my %data = map {my ($key, $value) = split /:/, $_, 2; $key => $value} @lines;
+    return \%data;
 }
 
 no Moose;
