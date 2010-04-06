@@ -1,5 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.0.1     2010-04-06 16:43:50 Australia/Sydney
     First version.
     Needs more tests.
