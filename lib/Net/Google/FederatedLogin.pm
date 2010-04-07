@@ -106,8 +106,31 @@ sub _get_discovery_url {
     my $claimed_id = $self->claimed_id;
     croak 'Claimed id not set (needs to be an email or OpenID url), unable to perform discovery' unless $claimed_id;
     
-    #TODO: Check whether it is a Google Apps account
-    return $DEFAULT_DISCOVERY_URL;
+    if($claimed_id =~ m{(\@gmail.com$)|(^https://www.google.com/accounts)}) {
+        return $DEFAULT_DISCOVERY_URL;
+    }
+    
+    my $app_domain;
+    if($claimed_id =~ /\@(.*)/) {
+        $app_domain = $1;
+    }
+    
+    #Check google hosted
+    my $host_meta_url = 'https://www.google.com/accounts/o8/.well-known/host-meta?hd=' . $app_domain;
+    my $ua = $self->ua;
+    my $response = $ua->get($host_meta_url);
+    unless($response->is_success) { #fallback to the domain specific location
+        $host_meta_url = sprintf 'http://%s/.well-known/host-meta', $app_domain;
+        $response = $ua->get($host_meta_url);
+    }
+    unless($response->is_success) {
+        croak 'Unable to find a host-meta page.';
+    }
+    if($response->decoded_content =~ m{Link: <(.+)>; rel="describedby http://reltype.google.com/openid/xrd-op"; type="application/xrds+xml"}) {
+        return $1;
+    } else {
+        croak 'Unable to perform discovery - host-meta page is not as expected.'
+    }
 }
 
 sub _get_request_parameters {
