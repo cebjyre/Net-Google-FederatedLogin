@@ -126,7 +126,7 @@ sub _get_discovery_url {
     unless($response->is_success) {
         croak 'Unable to find a host-meta page.';
     }
-    if($response->decoded_content =~ m{Link: <(.+)>; rel="describedby http://reltype.google.com/openid/xrd-op"; type="application/xrds+xml"}) {
+    if($response->decoded_content =~ m{Link: <(.+)>; \Qrel="describedby http://reltype.google.com/openid/xrd-op"; type="application/xrds+xml"\E}) {
         return $1;
     } else {
         croak 'Unable to perform discovery - host-meta page is not as expected.'
