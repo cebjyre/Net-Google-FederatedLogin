@@ -81,6 +81,10 @@ sub get_auth_url {
         croak 'No OpenID endpoint found.' unless $endpoint;
     }
     
+    #if the endpoint already contains params, put in a param separator ('&') otherwise start params ('?')
+    $endpoint .= ($endpoint =~ /\?/)
+        ? '&'
+        : '?';
     $endpoint .=  $self->_get_request_parameters;
     
     return $endpoint;
@@ -137,7 +141,7 @@ sub _get_request_parameters {
     my $self = shift;
     
     croak 'No return_to address provided' unless $self->return_to;
-    my $params = '?openid.mode=checkid_setup'
+    my $params = 'openid.mode=checkid_setup'
         . '&openid.ns=http://specs.openid.net/auth/2.0'
         . '&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select'
         . '&openid.identity=http://specs.openid.net/auth/2.0/identifier_select'
