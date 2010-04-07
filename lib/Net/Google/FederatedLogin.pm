@@ -11,7 +11,7 @@ my $DEFAULT_DISCOVERY_URL = 'https://www.google.com/accounts/o8/id';
 
 =attr claimed_id
 
-B<Required for L<get_auth_url>:> The email address, or an OpenID URL of the identity to be checked.
+B<Required for L<"get_auth_url">:> The email address, or an OpenID URL of the identity to be checked.
 
 =cut
 
@@ -38,7 +38,7 @@ has ua  => (
 
 =attr return_to
 
-B<Required for L<get_auth_url> and L<verify_auth>:> The URL
+B<Required for L<"get_auth_url"> and L<"verify_auth">:> The URL
 the user should be returned to after verifying their identity.
 
 =cut
@@ -50,7 +50,7 @@ has return_to   => (
 
 =attr cgi
 
-B<Required for L<verify_auth>:> A CGI object that is used to
+B<Required for L<"verify_auth">:> A CGI object that is used to
 access the parameters that assert the identity has been verified.
 
 =cut
@@ -125,7 +125,7 @@ sub _get_request_parameters {
 
 =method verify_auth
 
-Checks if the user has been validated based on the parameters in the L<cgi> object,
+Checks if the user has been validated based on the parameters in the L<"cgi"> object,
 and checks that these parameters do come from the correct OpenID provider (rather
 than having been hand-crafted to appear to validate the identity).
 
