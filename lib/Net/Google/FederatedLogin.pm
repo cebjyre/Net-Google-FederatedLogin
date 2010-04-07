@@ -7,8 +7,6 @@ use LWP::UserAgent;
 use Carp;
 use URI::Escape;
 
-my $DEFAULT_DISCOVERY_URL = 'https://www.google.com/accounts/o8/id';
-
 =attr claimed_id
 
 B<Required for L<"get_auth_url">:> The email address, or an OpenID URL of the identity to be checked.
@@ -60,11 +58,6 @@ has cgi => (
     isa => 'CGI',
 );
 
-has _open_id_endpoint   => (
-    is  => 'rw',
-    isa => 'Str',
-);
-
 =method get_auth_url
 
 Gets the URL to send the user to where they can verify their identity.
@@ -74,12 +67,7 @@ Gets the URL to send the user to where they can verify their identity.
 sub get_auth_url {
     my $self = shift;
     
-    my $endpoint = $self->_open_id_endpoint;
-    unless($endpoint) {
-        $self->_perform_discovery;
-        $endpoint = $self->_open_id_endpoint;
-        croak 'No OpenID endpoint found.' unless $endpoint;
-    }
+    my $endpoint = $self->_get_open_id_endpoint;
     
     #if the endpoint already contains params, put in a param separator ('&') otherwise start params ('?')
     $endpoint .= ($endpoint =~ /\?/)
@@ -90,51 +78,31 @@ sub get_auth_url {
     return $endpoint;
 }
 
-sub _perform_discovery {
-    my $self = shift;
-    
-    my $ua = $self->ua;
-    my $response = $ua->get($self->_get_discovery_url,
-        Accept => 'application/xrds+xml');
-    
-    require XML::Twig;
-    my $xt = XML::Twig->new(
-        twig_handlers => { URI => sub {$self->_open_id_endpoint($_->text)}},
-    );
-    $xt->parse($response->decoded_content);
-}
-
-sub _get_discovery_url {
+sub _get_open_id_endpoint {
     my $self = shift;
     
     my $claimed_id = $self->claimed_id;
-    croak 'Claimed id not set (needs to be an email or OpenID url), unable to perform discovery' unless $claimed_id;
-    
+    my $discoverer;
     if($claimed_id =~ m{(\@gmail.com$)|(^https://www.google.com/accounts)}) {
-        return $DEFAULT_DISCOVERY_URL;
-    }
-    
-    my $app_domain;
-    if($claimed_id =~ /\@(.*)/) {
-        $app_domain = $1;
-    }
-    
-    #Check google hosted
-    my $host_meta_url = 'https://www.google.com/accounts/o8/.well-known/host-meta?hd=' . $app_domain;
-    my $ua = $self->ua;
-    my $response = $ua->get($host_meta_url);
-    unless($response->is_success) { #fallback to the domain specific location
-        $host_meta_url = sprintf 'http://%s/.well-known/host-meta', $app_domain;
-        $response = $ua->get($host_meta_url);
-    }
-    unless($response->is_success) {
-        croak 'Unable to find a host-meta page.';
-    }
-    if($response->decoded_content =~ m{Link: <(.+)>; \Qrel="describedby http://reltype.google.com/openid/xrd-op"; type="application/xrds+xml"\E}) {
-        return $1;
+        require Net::Google::FederatedLogin::Gmail::Discoverer;
+        $discoverer = Net::Google::FederatedLogin::Gmail::Discoverer->new(ua => $self->ua)
     } else {
-        croak 'Unable to perform discovery - host-meta page is not as expected.'
+        require Net::Google::FederatedLogin::Apps::Discoverer;
+        my $app_domain;
+        my $is_id;
+        if($claimed_id =~ /\@(.*)/) {
+            $app_domain = $1;
+        } elsif($claimed_id =~ m{https?://([^/]+)}) {
+            $app_domain = $1;
+            $is_id = 1;
+        }
+        $discoverer = Net::Google::FederatedLogin::Apps::Discoverer->new(ua => $self->ua, app_domain => $app_domain);
+        $discoverer->claimed_id($claimed_id) if $is_id;
     }
+    
+    my $endpoint = $discoverer->perform_discovery;
+    croak 'No OpenID endpoint found.' unless $endpoint;
+    return $endpoint;
 }
 
 sub _get_request_parameters {
@@ -179,11 +147,9 @@ sub verify_auth {
         carp "Identity from parameters ($param_claimed_id) is not the same as the previously set claimed identity ($claimed_id); using the parameter version.";
         $self->claimed_id($param_claimed_id);
     }
-    $self->_open_id_endpoint('');
-    $self->_perform_discovery;
     
-    my $verify_endpoint = $self->_open_id_endpoint;
-    croak 'Unable to verify auth, failed to determine endpoint' unless $verify_endpoint;
+    my $verify_endpoint = $self->_get_open_id_endpoint;
+    
     $verify_endpoint .= '?' . join '&',
         map {
             my $param = $_;
