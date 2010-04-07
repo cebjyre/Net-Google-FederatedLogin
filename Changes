@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.0.2     2010-04-07 11:44:02 Australia/Sydney
     Fixed internal documentation links.
     Added repository metadata.
 
