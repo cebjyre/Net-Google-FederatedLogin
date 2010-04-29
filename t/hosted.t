@@ -1,4 +1,4 @@
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 use CGI;
 
@@ -116,8 +116,8 @@ my $cgi = CGI->new($returned_params);
 my $auth_fl = Net::Google::FederatedLogin->new(cgi => $cgi, return_to => 'http://example.com/return');
 
 $auth_fl->claimed_id('http://example.com/openid?id=108441225163454056756');
-is($auth_fl->_get_open_id_endpoint, 'https://www.google.com/accounts/o8/user-xrds?uri=http%3A%2F%2Fexample.com%2Fopenid%3Fid%3D108441225163454056756');
+is($auth_fl->_get_open_id_endpoint, 'https://www.google.com/a/example.com/o8/ud?be=o8');
 my $check_params = $returned_params;
 $check_params =~ s/openid\.mode=id_res/openid.mode=check_authentication/;
 
-#is($auth_fl->verify_auth(), 'http://example.com/openid?id=108441225163454056756', 'OpenID validated');
+is($auth_fl->verify_auth(), 'http://example.com/openid?id=108441225163454056756', 'OpenID validated');
