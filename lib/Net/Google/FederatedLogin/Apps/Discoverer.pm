@@ -19,6 +19,14 @@ has claimed_id  => (
     isa => 'Str',
 );
 
+=method perform_discovery
+
+Perform OpenID endpoint discovery for hosted domains - see
+http://groups.google.com/group/google-federated-login-api/web/openid-discovery-for-hosted-domains?pli=1
+for more details.
+
+=cut
+
 sub perform_discovery {
     my $self = shift;
     

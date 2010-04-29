@@ -7,6 +7,12 @@ with 'Net::Google::FederatedLogin::Role::Discoverer';
 
 my $DISCOVERY_URL = 'https://www.google.com/accounts/o8/id';
 
+=method perform_discovery
+
+Performs OpenID endpoint discovery for gmail accounts
+
+=cut
+
 sub perform_discovery {
     my $self = shift;
     
