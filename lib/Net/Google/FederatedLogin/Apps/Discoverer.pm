@@ -6,6 +6,7 @@ use Moose;
 with 'Net::Google::FederatedLogin::Role::Discoverer';
 
 use Carp;
+use URI::Escape;
 
 has app_domain  => (
     is  => 'rw',
@@ -28,8 +29,20 @@ sub perform_discovery {
     my $open_id_endpoint;
     
     require XML::Twig;
+    my $twig_handlers = {};
+    if(my $claimed_id = $self->claimed_id) {
+        my $escaped_id = uri_escape($claimed_id);
+        $twig_handlers->{Service} = sub {
+            if($_->first_child_text('Type') eq 'http://www.iana.org/assignments/relation/describedby') {
+                $open_id_endpoint = $_->first_child_text('openid:URITemplate');
+                $open_id_endpoint =~ s/{%uri}/$escaped_id/;
+            }
+        }
+    } else {
+        $twig_handlers->{URI} = sub {$open_id_endpoint = $_->text};
+    }
     my $xt = XML::Twig->new(
-        twig_handlers => { URI => sub {$open_id_endpoint = $_->text}},
+        twig_handlers => $twig_handlers,
     );
     $xt->parse($response->decoded_content);
     
