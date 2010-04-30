@@ -149,8 +149,10 @@ sub verify_auth {
     }
     
     my $verify_endpoint = $self->_get_open_id_endpoint;
-    
-    $verify_endpoint .= '?' . join '&',
+    $verify_endpoint .= ($verify_endpoint =~ /\?/)
+        ? '&'
+        : '?';
+    $verify_endpoint .= join '&',
         map {
             my $param = $_;
             my $val = $cgi->param($param);
