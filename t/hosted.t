@@ -51,7 +51,7 @@ my %update_mock_response = (
   </XRD>
 </xrds:XRDS>}})
     },
-    'https://www.google.com/accounts/o8/user-xrds?uri=http%3A%2F%2Fexample.com%2Fopenid%3Fid%3D108441225163454056756?openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.mode=check_authentication&openid.op_endpoint=https%3A%2F%2Fwww.google.com%2Fa%2Fgeoffmcqueen.com%2Fo8%2Fud%3Fbe%3Do8&openid.response_nonce=2010-04-07T09%3A37%3A44ZPnOORXHxuLpppA&openid.return_to=http%3A%2F%2Fexample.com%2Freturn&openid.assoc_handle=AOQobUepGOowYCBgCtqpD6LzIOGUpcqNSVTN-eRylmOPNw6SgiZyo0hH&openid.signed=op_endpoint%2Cclaimed_id%2Cidentity%2Creturn_to%2Cresponse_nonce%2Cassoc_handle&openid.sig=sRBcGKb1zj5CAxGOE%2FY7R8%2Bb9G8%3D&openid.identity=http%3A%2F%2Fexample.com%2Fopenid%3Fid%3D108441225163454056756&openid.claimed_id=http%3A%2F%2Fexample.com%2Fopenid%3Fid%3D108441225163454056756' => sub {
+    'https://www.google.com/accounts/o8/user-xrds?uri=http%3A%2F%2Fexample.com%2Fopenid%3Fid%3D108441225163454056756' => sub {
         $Mock_response->mock(decoded_content => sub {
             return q{<?xml version="1.0" encoding="UTF-8"?>
 <xrds:XRDS xmlns:xrds="xri://$xrds" xmlns="xri://$xrd*($v*2.0)">
