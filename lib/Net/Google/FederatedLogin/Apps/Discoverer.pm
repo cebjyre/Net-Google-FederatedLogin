@@ -30,21 +30,8 @@ sub perform_discovery {
     
     my $open_id_endpoint;
     
-    my $twig_handlers = {};
-    if(my $claimed_id = $self->claimed_id) {
-        my $escaped_id = uri_escape($claimed_id);
-        $twig_handlers->{Service} = sub {
-            if($_->first_child_text('Type') eq 'http://www.iana.org/assignments/relation/describedby') {
-                my $intermediate_endpoint = $_->first_child_text('openid:URITemplate');
-                $intermediate_endpoint =~ s/{%uri}/$escaped_id/;
-                $open_id_endpoint = $self->_extract_endpoint_from_intermediate($intermediate_endpoint);
-            }
-        }
-    } else {
-        $twig_handlers->{URI} = sub {$open_id_endpoint = $_->text};
-    }
     my $xt = XML::Twig->new(
-        twig_handlers => $twig_handlers,
+        twig_handlers => {URI => sub {$open_id_endpoint = $_->text}},
     );
     $xt->parse($response->decoded_content);
     
