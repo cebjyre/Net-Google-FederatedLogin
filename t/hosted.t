@@ -110,8 +110,8 @@ my $returned_params = 'openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0'
     . '&openid.assoc_handle=AOQobUepGOowYCBgCtqpD6LzIOGUpcqNSVTN-eRylmOPNw6SgiZyo0hH'
     . '&openid.signed=op_endpoint%2Cclaimed_id%2Cidentity%2Creturn_to%2Cresponse_nonce%2Cassoc_handle'
     . '&openid.sig=sRBcGKb1zj5CAxGOE%2FY7R8%2Bb9G8%3D'
-    . '&openid.identity=http%3a%2f%2fexample.com%2fopenid%3fid%3d108441225163454056756'
-    . '&openid.claimed_id=http%3a%2f%2fexample.com%2fopenid%3fid%3d108441225163454056756';
+    . '&openid.identity=http%3A%2F%2Fexample.com%2Fopenid%3Fid%3D108441225163454056756'
+    . '&openid.claimed_id=http%3A%2F%2Fexample.com%2Fopenid%3Fid%3D108441225163454056756';
 my $cgi = CGI->new($returned_params);
 my $auth_fl = Net::Google::FederatedLogin->new(cgi => $cgi, return_to => 'http://example.com/return');
 
@@ -119,5 +119,11 @@ $auth_fl->claimed_id('http://example.com/openid?id=108441225163454056756');
 is($auth_fl->_get_open_id_endpoint, 'https://www.google.com/a/example.com/o8/ud?be=o8');
 my $check_params = $returned_params;
 $check_params =~ s/openid\.mode=id_res/openid.mode=check_authentication/;
+
+$update_mock_response{'https://www.google.com/a/example.com/o8/ud?be=o8&' . $check_params} = sub {
+    $Mock_response->mock(decoded_content => sub {
+        return qq{is_valid:true\nns:http://specs.openid.net/auth/2.0}
+    })
+};
 
 is($auth_fl->verify_auth(), 'http://example.com/openid?id=108441225163454056756', 'OpenID validated');
