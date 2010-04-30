@@ -22,20 +22,22 @@ has claimed_id  => (
 sub perform_discovery {
     my $self = shift;
     
+    require XML::Twig;
+    
     my $ua = $self->ua;
     my $response = $ua->get($self->_get_discovery_url,
         Accept => 'application/xrds+xml');
     
     my $open_id_endpoint;
     
-    require XML::Twig;
     my $twig_handlers = {};
     if(my $claimed_id = $self->claimed_id) {
         my $escaped_id = uri_escape($claimed_id);
         $twig_handlers->{Service} = sub {
             if($_->first_child_text('Type') eq 'http://www.iana.org/assignments/relation/describedby') {
-                $open_id_endpoint = $_->first_child_text('openid:URITemplate');
-                $open_id_endpoint =~ s/{%uri}/$escaped_id/;
+                my $intermediate_endpoint = $_->first_child_text('openid:URITemplate');
+                $intermediate_endpoint =~ s/{%uri}/$escaped_id/;
+                $open_id_endpoint = $self->_extract_endpoint_from_intermediate($intermediate_endpoint);
             }
         }
     } else {
@@ -50,6 +52,17 @@ sub perform_discovery {
 }
 
 sub _get_discovery_url {
+    my $self = shift;
+    
+    if($self->claimed_id) {
+        return $self->_get_user_discovery_url;
+    } else {
+        return $self->_get_idp_discovery_url;
+    }
+    
+}
+
+sub _get_idp_discovery_url {
     my $self = shift;
     
     my $app_domain = $self->app_domain;
@@ -72,6 +85,30 @@ sub _get_discovery_url {
     }
 }
 
+sub _get_user_discovery_url {
+    my $self = shift;
+    
+    my $claimed_id = $self->claimed_id;
+    my $escaped_id = uri_escape($claimed_id);
+    
+    my $intermediate_url = $self->_get_idp_discovery_url;
+    
+    my $ua = $self->ua;
+    my $response = $ua->get($intermediate_url,
+        Accept => 'application/xrds+xml');
+    
+    my $discovery_url;
+    my $xt = XML::Twig->new(
+        twig_handlers => { Service => sub {
+            if($_->first_child_text('Type') eq 'http://www.iana.org/assignments/relation/describedby') {
+                $discovery_url = $_->first_child_text('openid:URITemplate');
+                $discovery_url =~ s/{%uri}/$escaped_id/;
+            }
+        }},
+    );
+    $xt->parse($response->decoded_content);
+    return $discovery_url;
+}
 no Moose;
 __PACKAGE__->meta->make_immutable;
 1;
