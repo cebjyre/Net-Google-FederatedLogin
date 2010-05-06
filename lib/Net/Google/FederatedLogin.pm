@@ -122,7 +122,8 @@ sub _get_request_parameters {
 
 Checks if the user has been validated based on the parameters in the L<"cgi"> object,
 and checks that these parameters do come from the correct OpenID provider (rather
-than having been hand-crafted to appear to validate the identity).
+than having been hand-crafted to appear to validate the identity). If the id is
+successfully verified, it is returned (otherwise a false value is returned).
 
 =cut
 
