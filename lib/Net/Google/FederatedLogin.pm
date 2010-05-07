@@ -112,6 +112,13 @@ sub get_openid_endpoint {
     return $endpoint;
 }
 
+sub _get_open_id_endpoint {
+    my $self = shift;
+    
+    carp 'The _get_open_id_endpoint() method has been deprecated; use get_openid_endpoint() instead.';
+    return $self->get_openid_endpoint;
+}
+
 sub _get_request_parameters {
     my $self = shift;
     
