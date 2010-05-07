@@ -116,7 +116,7 @@ my $cgi = CGI->new($returned_params);
 my $auth_fl = Net::Google::FederatedLogin->new(cgi => $cgi, return_to => 'http://example.com/return');
 
 $auth_fl->claimed_id('http://example.com/openid?id=108441225163454056756');
-is($auth_fl->_get_open_id_endpoint, 'https://www.google.com/a/example.com/o8/ud?be=o8');
+is($auth_fl->get_openid_endpoint, 'https://www.google.com/a/example.com/o8/ud?be=o8');
 my $check_params = $returned_params;
 $check_params =~ s/openid\.mode=id_res/openid.mode=check_authentication/;
 

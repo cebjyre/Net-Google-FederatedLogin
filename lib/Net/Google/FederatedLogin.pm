@@ -67,7 +67,7 @@ Gets the URL to send the user to where they can verify their identity.
 sub get_auth_url {
     my $self = shift;
     
-    my $endpoint = $self->_get_open_id_endpoint;
+    my $endpoint = $self->get_openid_endpoint;
     
     #if the endpoint already contains params, put in a param separator ('&') otherwise start params ('?')
     $endpoint .= ($endpoint =~ /\?/)
@@ -78,7 +78,14 @@ sub get_auth_url {
     return $endpoint;
 }
 
-sub _get_open_id_endpoint {
+=method get_openid_endpoint
+
+Gets the unadorned OpenID authentication URL (like L<"get_auth_url">, but doesn't contain values specific to
+this request (return_to, mode etc))
+
+=cut
+
+sub get_openid_endpoint {
     my $self = shift;
     
     my $claimed_id = $self->claimed_id;
@@ -149,7 +156,7 @@ sub verify_auth {
         $self->claimed_id($param_claimed_id);
     }
     
-    my $verify_endpoint = $self->_get_open_id_endpoint;
+    my $verify_endpoint = $self->get_openid_endpoint;
     $verify_endpoint .= ($verify_endpoint =~ /\?/)
         ? '&'
         : '?';
