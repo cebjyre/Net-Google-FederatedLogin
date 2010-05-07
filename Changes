@@ -2,6 +2,10 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+0.2.0     2010-05-07 11:50:12 Australia/Sydney
+    The get_openid_endpoint() method is now available in the public interface.
+    Documentation has had some slight updates.
+
 0.1.0     2010-04-30 16:54:50 Australia/Sydney
     Handling for hosted domains.
     Some testing.
