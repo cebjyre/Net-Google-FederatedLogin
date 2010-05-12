@@ -2,6 +2,9 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+0.3.0     2010-05-12 19:32:59 Australia/Sydney
+    OpenID endpoint discovery has been improved (which implementation to use, and wider set of allowed values).
+
 0.2.0     2010-05-07 11:50:12 Australia/Sydney
     The get_openid_endpoint() method is now available in the public interface.
     Documentation has had some slight updates.
