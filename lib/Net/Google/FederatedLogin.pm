@@ -90,7 +90,7 @@ sub get_openid_endpoint {
     
     my $claimed_id = $self->claimed_id;
     my $discoverer;
-    if($claimed_id =~ m{(\@gmail.com$)|(^https://www.google.com/accounts)}) {
+    if($claimed_id =~ m{((\@|^)gmail.com$)|(^https://www.google.com/accounts)}) {
         require Net::Google::FederatedLogin::Gmail::Discoverer;
         $discoverer = Net::Google::FederatedLogin::Gmail::Discoverer->new(ua => $self->ua)
     } else {
@@ -102,6 +102,8 @@ sub get_openid_endpoint {
         } elsif($claimed_id =~ m{https?://([^/]+)}) {
             $app_domain = $1;
             $is_id = 1;
+        } else {
+            $app_domain = $claimed_id;
         }
         $discoverer = Net::Google::FederatedLogin::Apps::Discoverer->new(ua => $self->ua, app_domain => $app_domain);
         $discoverer->claimed_id($claimed_id) if $is_id;
