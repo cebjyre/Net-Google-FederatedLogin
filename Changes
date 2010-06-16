@@ -2,6 +2,9 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+0.4.0     2010-06-16 18:33:52 Australia/Sydney
+    Added support for the openid.realm parameter
+
 0.3.0     2010-05-12 19:32:59 Australia/Sydney
     OpenID endpoint discovery has been improved (which implementation to use, and wider set of allowed values).
 
