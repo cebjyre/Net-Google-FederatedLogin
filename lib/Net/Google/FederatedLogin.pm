@@ -18,6 +18,19 @@ has claimed_id    => (
     isa => 'Str',
 );
 
+=attr realm
+
+Optional field that is used to populate the openid.realm parameter.
+If not provided the parameter will not be used (as opposed to being
+calculated from the L<"return_to">" value).
+
+=cut
+
+has realm   => (
+    is  => 'rw',
+    isa => 'Str',
+);
+
 =attr ua
 
 The useragent internally used for communications that the
@@ -130,6 +143,10 @@ sub _get_request_parameters {
         . '&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select'
         . '&openid.identity=http://specs.openid.net/auth/2.0/identifier_select'
         . '&openid.return_to=' . $self->return_to;
+    
+    if(my $realm = $self->realm) {
+        $params .= '&openid.realm='.$realm;
+    }
     
     return $params;
 }
