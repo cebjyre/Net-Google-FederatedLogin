@@ -1,3 +1,4 @@
 .project
+.includepath
 .build
 Net-Google-FederatedLogin-*
