@@ -2,10 +2,13 @@ package Net::Google::FederatedLogin;
 # ABSTRACT: Google Federated Login module - see http://code.google.com/apis/accounts/docs/OpenID.html
 
 use Moose;
+use Moose::Util::TypeConstraints;
 
 use LWP::UserAgent;
 use Carp;
 use URI::Escape;
+
+use Net::Google::FederatedLogin::Types;
 
 =attr claimed_id
 
@@ -69,6 +72,12 @@ access the parameters that assert the identity has been verified.
 has cgi => (
     is  => 'rw',
     isa => 'CGI',
+);
+
+has extensions => (
+    is  => 'rw',
+    isa => 'Extension_List',
+    coerce  => 1,
 );
 
 =method get_auth_url
@@ -146,6 +155,11 @@ sub _get_request_parameters {
     
     if(my $realm = $self->realm) {
         $params .= '&openid.realm='.$realm;
+    }
+    
+    my $extensions = $self->extensions;
+    if($extensions && @$extensions) {
+        $params .= '&' . $_->get_parameters() foreach @$extensions;
     }
     
     return $params;
