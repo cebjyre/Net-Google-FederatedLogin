@@ -109,10 +109,11 @@ sub get_parameter {
 
 sub set_parameter {
     my $self = shift;
-    my $param_name = shift;
-    my $param_val = shift;
+    my %params = @_;
     
-    $self->attributes->{$param_name} = $param_val;
+    _flatten_hash(\%params);
+    
+    $self->attributes->{$_} = $params{$_} foreach keys %params;
 }
 
 sub _flatten_attributes {
