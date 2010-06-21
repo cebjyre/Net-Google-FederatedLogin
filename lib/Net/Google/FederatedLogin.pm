@@ -159,8 +159,8 @@ sub _get_request_parameters {
     }
     
     my $extensions = $self->extensions;
-    if($extensions && @$extensions) {
-        $params .= '&' . $_->get_parameters() foreach @$extensions;
+    if($extensions && %$extensions) {
+        $params .= '&' . $_->get_parameter_string() foreach map {$extensions->{$_}} sort keys %$extensions;
     }
     
     return $params;

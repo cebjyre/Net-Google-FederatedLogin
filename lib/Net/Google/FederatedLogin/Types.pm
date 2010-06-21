@@ -5,11 +5,11 @@ use Moose::Util::TypeConstraints;
 use Net::Google::FederatedLogin::Extension;
 
 subtype 'Extension_List',
-    as 'ArrayRef[Net::Google::FederatedLogin::Extension]';
+    as 'HashRef[Net::Google::FederatedLogin::Extension]';
 
 coerce 'Extension_List',
     from 'ArrayRef',
-    via {[map {Net::Google::FederatedLogin::Extension->new($_)} @$_]};
+    via {my $ret = {map {($_->{uri} => Net::Google::FederatedLogin::Extension->new($_))} @$_};};
 
 no Moose::Util::TypeConstraints;
 1;

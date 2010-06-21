@@ -78,7 +78,7 @@ sub _extract_attributes_by_ns {
     return $args;
 }
 
-sub get_parameters {
+sub get_parameter_string {
     my $self = shift;
     my $ns = $self->ns;
     
