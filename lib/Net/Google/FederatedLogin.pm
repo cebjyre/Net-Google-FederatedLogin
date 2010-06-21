@@ -232,8 +232,27 @@ sub get_extension{
     my $self = shift;
     my $uri = shift;
     
-    my $extension = Net::Google::FederatedLogin::Extension->new(uri => $uri, cgi => $self->cgi);
+    my $extension;
+    
+    my $extensions = $self->extensions;
+    if($extensions){
+        $extension = $extensions->{$uri};
+    }
+    
+    unless($extension) {
+        $extension = Net::Google::FederatedLogin::Extension->new(uri => $uri, cgi => $self->cgi);
+        $self->set_extension($extension) if $extension;
+    }
     return $extension;
+}
+
+sub set_extension {
+    my $self = shift;
+    my $extension = shift;
+    
+    my $extensions = $self->extensions || {};
+    $extensions->{$extension->{uri}} = $extension;
+    $self->extensions($extensions);
 }
 
 no Moose;
