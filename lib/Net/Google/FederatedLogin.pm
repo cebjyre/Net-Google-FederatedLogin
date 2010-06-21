@@ -8,6 +8,7 @@ use LWP::UserAgent;
 use Carp;
 use URI::Escape;
 
+use Net::Google::FederatedLogin::Extension;
 use Net::Google::FederatedLogin::Types;
 
 =attr claimed_id
@@ -225,6 +226,14 @@ sub _parse_direct_response {
     my @lines = split /\n/, $response_content;
     my %data = map {my ($key, $value) = split /:/, $_, 2; $key => $value} @lines;
     return \%data;
+}
+
+sub get_extension{
+    my $self = shift;
+    my $uri = shift;
+    
+    my $extension = Net::Google::FederatedLogin::Extension->new(uri => $uri, cgi => $self->cgi);
+    return $extension;
 }
 
 no Moose;
