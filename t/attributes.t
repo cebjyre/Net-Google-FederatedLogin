@@ -17,7 +17,6 @@ my $fl = Net::Google::FederatedLogin->new(
                 mode        => 'fetch_request',
                 required    => 'email,firstname,lastname',
                 type        => {
-                    email       => 'http://axschema.org/contact/email',
                     firstname   => 'http://axschema.org/namePerson/first',
                     lastname    => 'http://axschema.org/namePerson/last',
                 }
@@ -31,6 +30,8 @@ my $fl = Net::Google::FederatedLogin->new(
             }
         }
     ]);
+
+$fl->get_extension('http://openid.net/srv/ax/1.0')->set_parameter('type.email' => 'http://axschema.org/contact/email');
 
 my %update_mock_response = (
     'https://www.google.com/accounts/o8/.well-known/host-meta?hd=example.com'   => sub {

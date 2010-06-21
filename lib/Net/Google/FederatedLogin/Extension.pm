@@ -114,6 +114,13 @@ sub get_parameter {
     return $self->attributes->{$param};
 }
 
+sub set_parameter {
+    my $self = shift;
+    my $param_name = shift;
+    my $param_val = shift;
+    
+    $self->attributes->{$param_name} = $param_val;
+}
 no Moose;
 __PACKAGE__->meta->make_immutable;
 
