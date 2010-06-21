@@ -1,7 +1,13 @@
 package Net::Google::FederatedLogin::Extension;
-# ABSTRACT: something that can find the OpenID endpoint
+# ABSTRACT: Storage and methods for OpenID extensions, both requesting information and receiving data.
 
 use Moose;
+
+=attr ns
+
+The namespace to use for this extension (eg 'ax' is the one usually used in documentation about attribute exchange).
+
+=cut
 
 has ns          => (
     is          => 'rw',
@@ -9,11 +15,25 @@ has ns          => (
     required    => 1,
 );
 
+=attr uri
+
+The type URI for the extension (eg attribute exchange has L<http://openid.net/srv/ax/1.0>).
+
+=cut
+
 has uri         => (
     is          => 'rw',
     isa         => 'Str',
     required    => 1,
 );
+
+=attr attributes
+
+The attributes for the extension (everything under openid.[ns].*), stored as a hashref. Internally this
+is flattened to a single hashref, but a tree structure can be passed in, and intermediate keys will be
+linked together with '.'.
+
+=cut
 
 has attributes  => (
     is          => 'rw',
@@ -79,6 +99,13 @@ sub _extract_attributes_by_ns {
     return $args;
 }
 
+=method get_parameter_string
+
+Collect the internal attributes, and create a single string representing the query of this extension object,
+usable for an OpenID request.
+
+=cut
+
 sub get_parameter_string {
     my $self = shift;
     my $ns = $self->ns;
@@ -100,12 +127,30 @@ sub _parameterise_hash {
     return $params;
 }
 
+=method get_parameter
+
+Get a single extension parameter, this is most likely to be used for extensions that are
+the result of a request (rather than when creating a request).
+
+=cut
+
 sub get_parameter {
     my $self = shift;
     my $param = shift;
     
     return $self->attributes->{$param};
 }
+
+=method set_parameter
+
+Set an extension parameter (or several parameters). Nested parameters are allowed, i.e.
+ C<<$extension->set_parameter(type => {firstname => 'q1', lastname => 'q2'});>>
+ is equivalent to:
+ C<<$extension->set_parameter('type.firstname' => 'q1', 'type.lastname' => 'q2');>>
+
+and neither approach will clear any other C<type.*> values that may already be set.
+
+=cut
 
 sub set_parameter {
     my $self = shift;

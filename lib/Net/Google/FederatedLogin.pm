@@ -75,6 +75,12 @@ has cgi => (
     isa => 'CGI',
 );
 
+=attr extensions
+
+Hashref of L<Net::Google::FederatedLogin::Extension> objects (keyed off the extension type URI).
+
+=cut
+
 has extensions => (
     is  => 'rw',
     isa => 'Extension_List',
@@ -228,7 +234,14 @@ sub _parse_direct_response {
     return \%data;
 }
 
-sub get_extension{
+=method get_extension
+
+Retrieve a single L<Net::Google::FederatedLogin::Extension> object, based on the type URI provided.
+This method is most likely to be useful for handling the response to an OpenID request.
+
+=cut
+
+sub get_extension {
     my $self = shift;
     my $uri = shift;
     
@@ -245,6 +258,12 @@ sub get_extension{
     }
     return $extension;
 }
+
+=method set_extension
+
+Save an extension into the list of extensions for this login object
+
+=cut
 
 sub set_extension {
     my $self = shift;
