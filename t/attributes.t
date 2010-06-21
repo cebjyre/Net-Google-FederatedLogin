@@ -1,4 +1,4 @@
-use Test::More tests => 4;
+use Test::More tests => 6;
 
 use CGI;
 
@@ -15,10 +15,9 @@ my $fl = Net::Google::FederatedLogin->new(
             uri         => 'http://openid.net/srv/ax/1.0',
             attributes  => {
                 mode        => 'fetch_request',
-                required    => 'email,firstname,lastname',
+                required    => 'email',
                 type        => {
-                    firstname   => 'http://axschema.org/namePerson/first',
-                    lastname    => 'http://axschema.org/namePerson/last',
+                    email => 'http://axschema.org/contact/email'
                 }
             }
         },
@@ -30,8 +29,6 @@ my $fl = Net::Google::FederatedLogin->new(
             }
         }
     ]);
-
-$fl->get_extension('http://openid.net/srv/ax/1.0')->set_parameter('type.email' => 'http://axschema.org/contact/email');
 
 my %update_mock_response = (
     'https://www.google.com/accounts/o8/.well-known/host-meta?hd=example.com'   => sub {
@@ -100,11 +97,56 @@ is($auth_url, 'https://www.google.com/a/example.com/o8/ud'
         . '&openid.other.argument=value'
     . '&openid.ns.ax=http://openid.net/srv/ax/1.0'
         . '&openid.ax.mode=fetch_request'
-        . '&openid.ax.required=email,firstname,lastname'
+        . '&openid.ax.required=email'
+        . '&openid.ax.type.email=http://axschema.org/contact/email'
+    , 'Generated correct authentication URL');
+
+$fl->get_extension('http://openid.net/srv/ax/1.0')->set_parameter('type.country' => 'http://axschema.org/contact/country/home');
+$fl->get_extension('http://openid.net/srv/ax/1.0')->set_parameter('required' => 'country,email');
+
+$auth_url = $fl->get_auth_url();
+is($auth_url, 'https://www.google.com/a/example.com/o8/ud'
+    . '?be=o8'
+    . '&openid.mode=checkid_setup'
+    . '&openid.ns=http://specs.openid.net/auth/2.0'
+    . '&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select'
+    . '&openid.identity=http://specs.openid.net/auth/2.0/identifier_select'
+    . '&openid.return_to=http://example.com/return'
+    . '&openid.ns.other=http://example.com/some_schema'
+        . '&openid.other.argument=value'
+    . '&openid.ns.ax=http://openid.net/srv/ax/1.0'
+        . '&openid.ax.mode=fetch_request'
+        . '&openid.ax.required=country,email'
+        . '&openid.ax.type.country=http://axschema.org/contact/country/home'
+        . '&openid.ax.type.email=http://axschema.org/contact/email'
+    , 'Generated correct authentication URL after simple param addition');
+
+$fl->get_extension('http://openid.net/srv/ax/1.0')->set_parameter(
+    type        => {
+        firstname   => 'http://axschema.org/namePerson/first',
+        lastname    => 'http://axschema.org/namePerson/last',
+    },
+    required    => 'country,email,firstname,lastname'
+);
+
+$auth_url = $fl->get_auth_url();
+is($auth_url, 'https://www.google.com/a/example.com/o8/ud'
+    . '?be=o8'
+    . '&openid.mode=checkid_setup'
+    . '&openid.ns=http://specs.openid.net/auth/2.0'
+    . '&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select'
+    . '&openid.identity=http://specs.openid.net/auth/2.0/identifier_select'
+    . '&openid.return_to=http://example.com/return'
+    . '&openid.ns.other=http://example.com/some_schema'
+        . '&openid.other.argument=value'
+    . '&openid.ns.ax=http://openid.net/srv/ax/1.0'
+        . '&openid.ax.mode=fetch_request'
+        . '&openid.ax.required=country,email,firstname,lastname'
+        . '&openid.ax.type.country=http://axschema.org/contact/country/home'
         . '&openid.ax.type.email=http://axschema.org/contact/email'
         . '&openid.ax.type.firstname=http://axschema.org/namePerson/first'
         . '&openid.ax.type.lastname=http://axschema.org/namePerson/last'
-    , 'Generated correct authentication URL');
+    , 'Generated correct authentication URL after nested param addition');
 
 my $returned_params = 'openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0'
     . '&openid.mode=id_res'
