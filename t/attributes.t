@@ -1,4 +1,4 @@
-use Test::More tests => 1;
+use Test::More tests => 4;
 
 use CGI;
 
@@ -128,3 +128,7 @@ my $returned_params = 'openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0'
 my $cgi = CGI->new($returned_params);
 my $auth_fl = Net::Google::FederatedLogin->new(cgi => $cgi, return_to => 'http://example.com/return');
 my $extension = $auth_fl->get_extension('http://openid.net/srv/ax/1.0');
+
+is($extension->get_parameter('value.firstname'), 'Some');
+is($extension->get_parameter('value.lastname'), 'Body');
+is($extension->get_parameter('value.email'), 'somebody@example.com');

@@ -107,6 +107,13 @@ sub _parameterise_hash {
     return $params;
 }
 
+sub get_parameter {
+    my $self = shift;
+    my $param = shift;
+    
+    return $self->attributes->{$param};
+}
+
 no Moose;
 __PACKAGE__->meta->make_immutable;
 
