@@ -104,7 +104,7 @@ is($auth_url, 'https://www.google.com/a/example.com/o8/ud'
 
 my $returned_params = 'openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0'
     . '&openid.mode=id_res'
-    . '&openid.op_endpoint=https%3A%2F%2Fwww.google.com%2Fa%2Fgeoffmcqueen.com%2Fo8%2Fud%3Fbe%3Do8'
+    . '&openid.op_endpoint=https%3A%2F%2Fwww.google.com%2Fa%2Fexample.com%2Fo8%2Fud%3Fbe%3Do8'
     . '&openid.response_nonce=2010-04-07T09%3A37%3A44ZPnOORXHxuLpppA'
     . '&openid.return_to=http%3A%2F%2Fexample.com%2Freturn'
     . '&openid.assoc_handle=AOQobUepGOowYCBgCtqpD6LzIOGUpcqNSVTN-eRylmOPNw6SgiZyo0hH'
