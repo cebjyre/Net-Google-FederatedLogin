@@ -14,11 +14,13 @@ my $fl = Net::Google::FederatedLogin->new(
             ns          => 'ax',
             uri         => 'http://openid.net/srv/ax/1.0',
             attributes  => {
-                mode                => 'fetch_request',
-                required            => 'email,firstname,lastname',
-                'type.email'        => 'http://axschema.org/contact/email',
-                'type.firstname'    => 'http://axschema.org/namePerson/first',
-                'type.lastname'     => 'http://axschema.org/namePerson/last',
+                mode        => 'fetch_request',
+                required    => 'email,firstname,lastname',
+                type        => {
+                    email       => 'http://axschema.org/contact/email',
+                    firstname   => 'http://axschema.org/namePerson/first',
+                    lastname    => 'http://axschema.org/namePerson/last',
+                }
             }
         },
         {

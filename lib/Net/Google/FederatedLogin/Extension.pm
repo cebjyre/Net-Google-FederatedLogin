@@ -28,10 +28,25 @@ sub get_parameters {
     my $params = sprintf 'openid.ns.%s=%s', $ns, $self->uri;
     
     my $attributes = $self->attributes;
-    foreach(sort keys %$attributes) {
-        $params .= sprintf '&openid.%s.%s=%s', $ns, $_, $attributes->{$_};
-    }
+    $params .= _parameterise_hash("openid.$ns", $attributes);
     
+    return $params;
+}
+
+sub _parameterise_hash {
+    my $prefix = shift;
+    my $hash = shift;
+    
+    my $params = '';
+    foreach(sort keys %$hash) {
+        my $value = $hash->{$_};
+        if(ref $value eq 'HASH') {
+            $params .= _parameterise_hash("$prefix.$_", $value);
+        }
+        else {
+            $params .= sprintf '&%s.%s=%s', $prefix, $_, $value;
+        }
+    }
     return $params;
 }
 
