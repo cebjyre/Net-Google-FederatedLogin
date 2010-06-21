@@ -2,6 +2,9 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+0.5.0     2010-06-21 20:28:24 Australia/Sydney
+    Added handling for OpenID extensions.
+
 0.4.0     2010-06-16 18:33:52 Australia/Sydney
     Added support for the openid.realm parameter
 
