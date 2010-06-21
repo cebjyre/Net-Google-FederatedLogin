@@ -19,6 +19,7 @@ has attributes  => (
     is          => 'rw',
     isa         => 'HashRef',
     required    => 1,
+    trigger     => \&_flatten_attributes,
 );
 
 around BUILDARGS => sub {
@@ -95,15 +96,7 @@ sub _parameterise_hash {
     my $hash = shift;
     
     my $params = '';
-    foreach(sort keys %$hash) {
-        my $value = $hash->{$_};
-        if(ref $value eq 'HASH') {
-            $params .= _parameterise_hash("$prefix.$_", $value);
-        }
-        else {
-            $params .= sprintf '&%s.%s=%s', $prefix, $_, $value;
-        }
-    }
+    $params .= sprintf '&%s.%s=%s', $prefix, $_, $hash->{$_} foreach(sort keys %$hash);
     return $params;
 }
 
@@ -121,6 +114,27 @@ sub set_parameter {
     
     $self->attributes->{$param_name} = $param_val;
 }
+
+sub _flatten_attributes {
+    my $self = shift;
+    my $attributes = shift;
+    
+    _flatten_hash($attributes);
+}
+
+sub _flatten_hash {
+    my $hash = shift;
+    
+    foreach my $key (keys %$hash) {
+        my $value = $hash->{$key};
+        if(ref $value eq 'HASH') {
+            _flatten_hash($value);
+            $hash->{"$key.$_"} = $value->{$_} foreach keys %$value;
+            delete $hash->{$key};
+        }
+    }
+}
+
 no Moose;
 __PACKAGE__->meta->make_immutable;
 
