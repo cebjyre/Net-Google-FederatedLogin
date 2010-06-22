@@ -145,11 +145,11 @@ sub get_parameter {
 
 Set an extension parameter (or several parameters). Nested parameters are allowed, i.e.
 
- C<< $extension->set_parameter(type => {firstname => 'q1', lastname => 'q2'}); >>
+C<< $extension->set_parameter(type => {firstname => 'q1', lastname => 'q2'}); >>
 
- is equivalent to:
+is equivalent to:
 
- C<< $extension->set_parameter('type.firstname' => 'q1', 'type.lastname' => 'q2'); >>
+C<< $extension->set_parameter('type.firstname' => 'q1', 'type.lastname' => 'q2'); >>
 
 and neither approach will clear any other C<type.*> values that may already be set.
 
