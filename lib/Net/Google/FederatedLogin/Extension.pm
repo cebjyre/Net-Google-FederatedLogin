@@ -1,7 +1,7 @@
 package Net::Google::FederatedLogin::Extension;
 # ABSTRACT: Storage and methods for OpenID extensions, both requesting information and receiving data.
 
-use Moose;
+use Moose 0.51;
 
 =attr ns
 
