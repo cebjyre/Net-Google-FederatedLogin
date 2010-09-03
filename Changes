@@ -2,6 +2,9 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+0.5.3     2010-09-03 11:37:46 Australia/Sydney
+    Minimum version of Moose required to get BUILDARGS (see http://www.cpantesters.org/cpan/report/58873350-b5ce-11df-8c9f-73fc23310e15)
+
 0.5.2     2010-06-22 11:04:50 Australia/Sydney
     Documentation formatting fixes. Again.
 
