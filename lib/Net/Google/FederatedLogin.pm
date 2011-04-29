@@ -11,6 +11,25 @@ use URI::Escape;
 use Net::Google::FederatedLogin::Extension;
 use Net::Google::FederatedLogin::Types;
 
+=head1 SYNOPSIS
+
+Sending user to be authenticated:
+
+  my $claimed = 'example@gmail.com';
+  # or, where example.com is a Google Apps domain
+  # 'example.com' (bare domain)
+  # or 'user@example.com' (email address)
+  # or 'http://example.com/openid?id=[id]' (already known id)
+  
+  my $g = Net::Google::FederatedLogin->new(claimed_id => $claimed, return_to => 'https://example.com/auth');
+  my $auth_url = $g->get_auth_url();
+
+Verifying the user was correctly authenticated:
+
+  my $g = Net::Google::FederatedLogin->new(cgi => $cgi, return_to => 'https://example.com/auth');
+  my $id = $g->verify_auth();
+  # $id is the verified identity, or false if it wasn't verified (eg by the user handcrafting the url, or disallowing access)
+
 =attr claimed_id
 
 B<Required for L<"get_auth_url">:> The email address, or an OpenID URL of the identity to be checked.
