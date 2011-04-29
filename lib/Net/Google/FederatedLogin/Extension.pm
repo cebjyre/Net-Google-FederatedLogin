@@ -93,7 +93,8 @@ sub _extract_attributes_by_ns {
     
     my $prefix = "openid.$ns.";
     my $prefix_len = length($prefix);
-    my %attributes = (map {substr($_, $prefix_len) => scalar $cgi->param($_)} grep {/^\Q$prefix\E/} $cgi->param());
+    my %signed_params = map {("openid.$_" => 1)} split /,/, $cgi->param('openid.signed');
+    my %attributes = (map {substr($_, $prefix_len) => scalar $cgi->param($_)} grep {/^\Q$prefix\E/ and $signed_params{$_}} $cgi->param());
     $args->{attributes} = \%attributes;
     
     return $args;
@@ -138,6 +139,7 @@ sub get_parameter {
     my $self = shift;
     my $param = shift;
     
+    die "$param is not an available parameter" unless exists $self->attributes->{$param};
     return $self->attributes->{$param};
 }
 
