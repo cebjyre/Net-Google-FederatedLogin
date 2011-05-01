@@ -231,7 +231,7 @@ sub verify_auth {
             my $param = $_;
             my $val = $cgi->param($param);
             $val = 'check_authentication' if $param eq 'openid.mode';
-            sprintf '%s=%s', uri_escape($param), uri_escape($val);
+            sprintf '%s=%s', uri_escape_utf8($param), uri_escape_utf8($val);
         } $cgi->param;
     
     my $ua = $self->ua;
