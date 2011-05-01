@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    Fixed RT-67832 (use uri_escape_utf8 instead of uri_escape; thanks to Erik Gimbert).
 
 0.6.0     2011-04-29 14:36:51 Australia/Sydney
     Added minimalish synopsis
