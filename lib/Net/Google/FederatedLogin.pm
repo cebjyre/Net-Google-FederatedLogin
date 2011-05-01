@@ -85,13 +85,26 @@ has return_to   => (
 =attr cgi
 
 B<Required for L<"verify_auth">:> A CGI-like object (same param() method behaviour)
-that is used to access the parameters that assert the identity has been verified.
+that is used to access the parameters that assert the identity has been verified. May optionally
+be replaced by L<"cgi_params">.
 
 =cut
 
 has cgi => (
     is  => 'rw',
     isa => duck_type(['param']),
+);
+
+=attr cgi_params
+
+B<Required for L<"verify_auth"> unless L<"cgi"> is supplied:> A hashref containing the cgi
+parameters for verifying the identity.
+
+=cut
+
+has cgi_params => (
+	is => 'ro',
+	isa => 'HashRef'
 );
 
 =attr extensions
@@ -203,18 +216,15 @@ successfully verified, it is returned (otherwise a false value is returned).
 sub verify_auth {
     my $self = shift;
     
-    my $cgi = $self->cgi;
-    croak 'No CGI provided (needed to verify OpenID parameters)' unless $cgi;
-    
-    return if $cgi->param('openid.mode') eq 'cancel';
+    return if $self->_get_param('openid.mode') eq 'cancel';
     
     my $return_to = $self->return_to;
-    my $param_return_to = $cgi->param('openid.return_to');
+    my $param_return_to = $self->_get_param('openid.return_to');
     croak 'Return_to value must be set for validation purposes' unless $return_to;
     croak sprintf q{Return_to parameter (%s) doesn't match provided value(%s)}, $param_return_to, $return_to unless $param_return_to eq $return_to;
     
     my $claimed_id = $self->claimed_id;
-    my $param_claimed_id = $cgi->param('openid.claimed_id');
+    my $param_claimed_id = $self->_get_param('openid.claimed_id');
     if(!$claimed_id) {
         $self->claimed_id($param_claimed_id);
     } elsif ($claimed_id ne $param_claimed_id) {
@@ -229,10 +239,10 @@ sub verify_auth {
     $verify_endpoint .= join '&',
         map {
             my $param = $_;
-            my $val = $cgi->param($param);
+            my $val = $self->_get_param($param);
             $val = 'check_authentication' if $param eq 'openid.mode';
             sprintf '%s=%s', uri_escape($param), uri_escape($val);
-        } $cgi->param;
+        } $self->_get_param;
     
     my $ua = $self->ua;
     my $response = $ua->get($verify_endpoint,
@@ -291,6 +301,39 @@ sub set_extension {
     my $extensions = $self->extensions || {};
     $extensions->{$extension->{uri}} = $extension;
     $self->extensions($extensions);
+}
+
+sub _get_param
+{
+    my $self = shift;
+    my $param = shift;
+    
+    if(my $cgi = $self->cgi)
+    {
+        if($param)
+        {
+            return $cgi->param($param);
+        }
+        else
+        {
+            return $cgi->param();
+        }
+    }
+    elsif(my $cgi_params = $self->cgi_params)
+    {
+        if($param)
+        {
+            return $cgi_params->{$param};
+        }
+        else
+        {
+            return keys %$cgi_params;
+        }
+    }
+    else
+    {
+        croak('Neither cgi nor cgi_params attributes have been provided (needed to verify OpenID parameters)');
+    }
 }
 
 no Moose;
