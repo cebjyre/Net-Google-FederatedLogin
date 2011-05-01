@@ -1,7 +1,10 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.7.0     2011-05-01 22:37:38 Australia/Sydney
     Fixed RT-67832 (use uri_escape_utf8 instead of uri_escape; thanks to Erik Gimbert).
+    Fixed RT-66332 (not strictly requiring CGI; Erik Gimbert again).
 
 0.6.0     2011-04-29 14:36:51 Australia/Sydney
     Added minimalish synopsis
