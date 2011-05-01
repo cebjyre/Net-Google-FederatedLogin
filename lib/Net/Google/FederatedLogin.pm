@@ -84,14 +84,14 @@ has return_to   => (
 
 =attr cgi
 
-B<Required for L<"verify_auth">:> A CGI object that is used to
-access the parameters that assert the identity has been verified.
+B<Required for L<"verify_auth">:> A CGI-like object (same param() method behaviour)
+that is used to access the parameters that assert the identity has been verified.
 
 =cut
 
 has cgi => (
     is  => 'rw',
-    isa => 'CGI',
+    isa => duck_type(['param']),
 );
 
 =attr extensions
