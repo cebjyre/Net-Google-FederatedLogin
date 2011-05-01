@@ -282,7 +282,7 @@ sub get_extension {
     }
     
     unless($extension) {
-        $extension = Net::Google::FederatedLogin::Extension->new(uri => $uri, cgi => $self->cgi);
+        $extension = Net::Google::FederatedLogin::Extension->new(uri => $uri, cgi => $self->cgi, cgi_params => $self->cgi_params);
         $self->set_extension($extension) if $extension;
     }
     return $extension;
