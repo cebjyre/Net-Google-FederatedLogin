@@ -69,7 +69,7 @@ $check_params =~ s/openid\.mode=id_res/openid.mode=check_authentication/;
 eval "use Catalyst::Request";
 SKIP: {
     skip "Catalyst::Request required for testing cgi param that isn't actually CGI", 1 if $@;
-    my $not_cgi = Catalyst::Request->new;
+    my $not_cgi = Catalyst::Request->new(_log => undef);
     $not_cgi->param($_, $params_hashref->{$_}) foreach keys %$params_hashref;
     
     my $auth_fl = Net::Google::FederatedLogin->new(cgi => $not_cgi, return_to => 'http://example.com/return');

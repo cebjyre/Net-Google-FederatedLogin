@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    Fixed RT-76617 (Catalyst::Runtime now requires _log attribute in constructor)
 
 0.7.0     2011-05-01 22:37:38 Australia/Sydney
     Fixed RT-67832 (use uri_escape_utf8 instead of uri_escape; thanks to Erik Gimbert).
