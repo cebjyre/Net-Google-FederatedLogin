@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.7.1     2012-04-18 13:04:10 Australia/Sydney
     Fixed RT-76617 (Catalyst::Runtime now requires _log attribute in constructor)
 
 0.7.0     2011-05-01 22:37:38 Australia/Sydney
