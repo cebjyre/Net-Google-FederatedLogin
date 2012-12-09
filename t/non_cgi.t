@@ -1,4 +1,4 @@
-use Test::More tests => 3;
+use Test::More tests => 5;
 
 use URI::Escape;
 
@@ -56,19 +56,26 @@ my $returned_params = 'openid.response_nonce=2010-04-07T06%3A33%3A04ZbYSWYfqVm6F
     . '&openid.identity=https%3A%2F%2Fwww.google.com%2Faccounts%2Fo8%2Fid%3Fid%3DAItOawlUNZx4cswq6NC0rwOvok80v8DyAg2V-Co'
     . '&openid.return_to=http%3A%2F%2Fexample.com%2Freturn';
 
-my $params_hashref = {};
-foreach (split '&', $returned_params)
+sub params_to_hashref
 {
-    my ($param, $value) = split('=', $_);
-    $params_hashref->{$param} = uri_unescape($value);
+    my $params = shift;
+    my $hashref = {};
+    foreach (split '&', $params)
+    {
+        my ($param, $value) = split('=', $_);
+        $hashref->{$param} = uri_unescape($value);
+    }
+    return $hashref;
 }
 
-my $check_params = $returned_params;
-$check_params =~ s/openid\.mode=id_res/openid.mode=check_authentication/;
+my $params_hashref = params_to_hashref($returned_params);
+
+my $check_params = $params_hashref;
+$check_params->{'openid.mode'} = 'check_authentication';
 
 eval "use Catalyst::Request";
 SKIP: {
-    skip "Catalyst::Request required for testing cgi param that isn't actually CGI", 1 if $@;
+    skip "Catalyst::Request required for testing cgi param that isn't actually CGI", 2 if $@;
     my $not_cgi = Catalyst::Request->new(_log => undef);
     $not_cgi->param($_, $params_hashref->{$_}) foreach keys %$params_hashref;
     
@@ -78,7 +85,7 @@ SKIP: {
             my $self = shift;
             my $url = shift;
             if($url ne 'https://www.google.com/accounts/o8/id') {
-                die 'Unexpected request URL: ' . $url unless $url eq 'https://www.google.com/accounts/o8/ud?'.$check_params;
+                is_deeply(params_to_hashref(substr($url, 38)), $check_params);
                 $Mock_response->mock(decoded_content => sub {
                     return qq{ns:http://specs.openid.net/auth/2.0\nis_valid:true}})
             }
@@ -98,7 +105,7 @@ $Mock_ua->mock(get => sub {
         my $self = shift;
         my $url = shift;
         if($url ne 'https://www.google.com/accounts/o8/id') {
-            die 'Unexpected request URL: ' . $url unless $url eq 'https://www.google.com/accounts/o8/ud?'.$check_params;
+            is_deeply(params_to_hashref(substr($url, 38)), $check_params);
             $Mock_response->mock(decoded_content => sub {
                 return qq{ns:http://specs.openid.net/auth/2.0\nis_valid:true}})
         }
