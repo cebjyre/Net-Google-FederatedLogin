@@ -241,7 +241,7 @@ sub verify_auth {
             my $param = $_;
             my $val = $self->_get_param($param);
             $val = 'check_authentication' if $param eq 'openid.mode';
-            sprintf '%s=%s', uri_escape_utf8($param), uri_escape_utf8($val);
+            sprintf '%s=%s', uri_escape($param), uri_escape($val);
         } $self->_get_param;
     
     my $ua = $self->ua;
