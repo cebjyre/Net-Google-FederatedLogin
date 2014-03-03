@@ -2,9 +2,12 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+0.8.0     2014-03-03 20:55:49 Australia/Sydney
+    Reverted use of uri_escape_utf8 back to uri_escape, I hope this doesn't cause problems for anyone.
+
 0.7.2     2012-12-09 22:36:18 Australia/Sydney
     Fixed RT-81565 (change in perl5.17.6 broke a test; thanks to Andreas Koenig for narrowing down the cause)
-    Git repo metadaata
+    Git repo metadata
 
 0.7.1     2012-04-18 13:04:10 Australia/Sydney
     Fixed RT-76617 (Catalyst::Runtime now requires _log attribute in constructor)
